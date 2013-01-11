@@ -1,34 +1,27 @@
-A better place for version history rather than bloating the .ino file.
-
-__________________________________________________ 
+_A better place for version history rather than bloating the .ino file._
+--- 
 HexBright Basic Code - High/Med/Low/Dazzle
   
-  Based on:
-  Factory firmware for HexBright FLEX 
-  v2.4  Dec 6, 2012
-  https://github.com/hexbright/samples
+Based on:
+Factory firmware for HexBright FLEX v2.4  Dec 6, 2012
+https://github.com/hexbright/samples
   
-  Cherry picked dazzle improvements from 
-  https://github.com/digitalmisery/HexBrightFLEX:
-  - Changed the way dazzle works and set flicker rate to match
-  the known frequencies for vertigo (about 5 to 20Hz):
-  http://en.wikipedia.org/wiki/Flicker_vertigo
-  Cherry pick SOS from https://github.com/jaebird/samples.git
-  * Added SOS to dazzle mode. To get there: press and hold pwr button to get dazzle, then 2 second long press again for SOS
-__________________________________________________
-
-__________________________________________________
+Cherry picked dazzle improvements from https://github.com/digitalmisery/HexBrightFLEX:
+- Changed the way dazzle works and set flicker rate to match the known frequencies for vertigo (about 5 to 20Hz): http://en.wikipedia.org/wiki/Flicker_vertigo
+- Cherry pick SOS from https://github.com/jaebird/samples.git
+- Added SOS to dazzle mode. To get there: press and hold pwr button to get dazzle, then 2 second long press again for SOS
+---
 UPDATE LOG:
 12-29-12
--some code from sharph (https://github.com/sharph/sharp-hexbright) dealing with fading the green led during charge
+- some code from sharph (https://github.com/sharph/sharp-hexbright) dealing with fading the green led during charge
 Added more code to choose blink or fade
 
 12/24/12
--Added a bit to print the charge state along with Temp.
--and added a constant for printing things to serial.
+- Added a bit to print the charge state along with Temp.
+- and added a constant for printing things to serial.
 
 12/23/12
--added some comments and a TODO: derp moment with bitwise AND and time for green led and flash.
+- added some comments and a TODO: derp moment with bitwise AND and time for green led and flash.
 
 12/21/12
--Updated with fixed SOS code : fixed SOS code & timeout and some readability things
+- Updated with fixed SOS code : fixed SOS code & timeout and some readability things
