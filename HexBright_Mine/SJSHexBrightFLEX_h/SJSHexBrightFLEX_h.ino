@@ -1,48 +1,41 @@
 /* 
   My version of HexBrightFLEX based on hexbright_bjh
-  v1.2h - includes hexbright.h to report the temp
+  v1.3.1 (change the 'Powered Up! text below to match)
   __________________________________________________
- 12-31-12
- -included hexbright.h to report the temp in F
- 12-29-12
- -some code from sharph dealing with fading the
- green led during charge
-  See sund/git-mine/HexBright_Mine/SJSHexBrightFLEX/
+  1-10-13
+  Updating some code from hexbright.h and shrinking the
+  size of the compiled sketch
+  
+  See sund/HexBright/HexBright_Mine/SJSHexBrightFLEX/
    SJSHexLightFLEX Version History.txt
   __________________________________________________
+  TO DO:
+  Short term
+  .Flash red LED when within 10 or so of OVERTEMP and
+   flashes 2x within 5
   
+  Long Term
+  .Calc temp from wire
+  .change dazzle mode to pressing button and shaking light.
+   and enter SOS after holding for 5 sec
+  .beacon mode and 'stabbing motion' down
+  .momentary press - enter with ?
+  .static mode - press while pointing down and set on surface and stay on for 5 more so minutes
   __________________________________________________
-  See the sund/git-mine/HexBright_Mine/README.txt for
-  info on sources.
+  See the sund/HexBright/HexBright_Mine/README.txt for info on sources.
 
 */
 
-// Configs
-#define CFG_ChgFade true
-
-#include <math.h>
 #include <Wire.h>
-// include hexbrght library
 #include <hexbright.h>
-
+//needed with hexbright.h
 hexbright hb;
-//
 
 // Settings
-#define OVERTEMP                310 //~1.1V = 60C = 140F ~ 320 = 130* fahrenheit/55* celsius (with calibration)
-
-// Accelerometer defines
-#define ACC_ADDRESS             0x4C
-#define ACC_REG_XOUT            0
-#define ACC_REG_YOUT            1
-#define ACC_REG_ZOUT            2
-#define ACC_REG_TILT            3
-#define ACC_REG_INTS            6
-#define ACC_REG_MODE            7
+#define OVERTEMP                300 //~1.1V = 60C = 140F ~ 320 = 130* fahrenheit/55* celsius (with calibration)
 
 // Pin assignments
 #define DPIN_RLED_SW            2 //PD2, INT0, MLF PIN 28 - Red LED
-#define DPIN_ACC_INT            3 //PD3, INT1, MLF PIN 1 - Accel Int
 #define DPIN_GLED               5 //PD5, OC0B, MLF PIN 7 - Green LED
 #define DPIN_PGOOD              7 //PD7, MLF PIN 9 - Power Good
 #define DPIN_PWR                8 //PB0, MLF PIN 10 - POWER
@@ -77,11 +70,11 @@ long dazzle_period = 100;
 
 void setup()
 {
-  // for hexbright library
+  //needed with hexbright.h
   hb.init_hardware();
-  
   // We just powered on!  That means either we got plugged 
   // into USB, or the user is pressing the power button.
+  /*
   pinMode(DPIN_PWR,      INPUT);
   digitalWrite(DPIN_PWR, LOW);
 
@@ -95,12 +88,13 @@ void setup()
   digitalWrite(DPIN_DRV_MODE, LOW);
   digitalWrite(DPIN_DRV_EN,   LOW);
   digitalWrite(DPIN_ACC_INT,  HIGH);
-  
+  */
   // Initialize serial busses
   Serial.begin(9600);
   Wire.begin();
   
   // Configure accelerometer
+  /*
   byte config[] = {
     ACC_REG_INTS,  // First register (see next line)
     0xE4,  // Interrupts: shakes, taps
@@ -109,28 +103,30 @@ void setup()
     0x0F,  // Tap threshold
     0x10   // Tap debounce samples
   };
+  
   Wire.beginTransmission(ACC_ADDRESS);
   Wire.write(config, sizeof(config));
   Wire.endTransmission();
+  */
   
   btnTime = millis();
   btnDown = digitalRead(DPIN_RLED_SW);
   mode = MODE_OFF;
 
-  Serial.println("Powered up!");
+  Serial.println("Powered up! v1.3.1");
   randomSeed(analogRead(1));
 }
 
 void loop()
 {
+  //needed with hexbright.h
+  hb.update();
+  
   static unsigned long lastDazzleTime, lastTempTime, lastChrgTime, lastModeTime, lastAccTime, lastModeSOSTime;
   static unsigned long ditdah;
   static int ledState = LOW;
   
   unsigned long time = millis(); // time on in millsecs
-  
-  // for hexbright library
-  hb.update();
   
   // Check the state of the charge controller
   int chargeState = analogRead(APIN_CHARGE);
@@ -141,76 +137,54 @@ void loop()
     lastChrgTime = time;
     Serial.print("chargeState: ");
     Serial.println(chargeState);
+    
+    //check the free ram
+    //Serial.print("freeRam: ");
+    //Serial.println(hb.freeRam());
+    
   }
   
-  if (chargeState < 128)  // Low - charging
-  {
-    //Config from the top for fade or blinky
-    if (!CFG_ChgFade)
-    digitalWrite(DPIN_GLED, (time&0x0200)?LOW:HIGH);
-    else{
-      if(time%4000 < 2000)
-        analogWrite(DPIN_GLED,map(time%2000,0,2000,0,255));
-      else
-        analogWrite(DPIN_GLED,map(time%2000,0,2000,255,0));
-    }
-  }
-  else if (chargeState > 768) // High - charged
-  {
-    digitalWrite(DPIN_GLED, HIGH);
-  }
-  else // Hi-Z - shutdown
-  {
-    digitalWrite(DPIN_GLED, LOW);    
-  }
+  //  printing charge state
+  hb.print_charge(GLED);
   
   // Check the temperature sensor
   if (time-lastTempTime > SerialPrintIntrvl)
   {
     lastTempTime = time;
-    int temperature = analogRead(APIN_TEMP);
-    Serial.print("Temp deg F: ");
-    //Serial.println(temperature);
-    Serial.println(hb.get_fahrenheit());
+    int temperature = hb.get_thermal_sensor();
+    Serial.print("Temp: ");
+    Serial.println(temperature);
+    
     if (temperature > OVERTEMP && mode != MODE_OFF)
     {
       Serial.println("Overheating!");
 
       for (int i = 0; i < 6; i++)
       {
-        digitalWrite(DPIN_DRV_MODE, LOW);
-        delay(100);
-        digitalWrite(DPIN_DRV_MODE, HIGH);
-        delay(100);
+        //digitalWrite(DPIN_DRV_MODE, LOW);
+        hb.set_light(MAX_LOW_LEVEL, MAX_LOW_LEVEL, 100);
+        //delay(100);
+        //digitalWrite(DPIN_DRV_MODE, HIGH);
+        hb.set_light(MAX_LEVEL, MAX_LEVEL, 100);
+        //delay(100);
       }
-      digitalWrite(DPIN_DRV_MODE, LOW);
+      //digitalWrite(DPIN_DRV_MODE, LOW);
+      hb.set_light(MAX_LOW_LEVEL, MAX_LOW_LEVEL, 0);
 
       mode = MODE_LOW;
     }
   }
 
-  // Check if the accelerometer wants to interrupt
-  byte tapped = 0, shaked = 0;
-  if (!digitalRead(DPIN_ACC_INT))
-  {
-    Wire.beginTransmission(ACC_ADDRESS);
-    Wire.write(ACC_REG_TILT);
-    Wire.endTransmission(false);       // End, but do not stop!
-    Wire.requestFrom(ACC_ADDRESS, 1);  // This one stops.
-    byte tilt = Wire.read();
-    
-    if (time-lastAccTime > 500)
+  // Check if the accel has anything to say
+  // at a resonable interval
+  if (time-lastAccTime > 50)
     {
       lastAccTime = time;
   
-      tapped = !!(tilt & 0x20);
-      shaked = !!(tilt & 0x80);
-  
-      if (tapped) Serial.println("Tap!");
-      if (shaked) Serial.println("Shake!");
+      if (hb.tapped()) Serial.println("** Tap!");
+      if (hb.shaked()) Serial.println("** Shake!");
     }
-  }
-  
+
   // Do whatever this mode does
   switch (mode)
   {
