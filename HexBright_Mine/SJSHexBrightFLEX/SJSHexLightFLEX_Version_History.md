@@ -1,4 +1,5 @@
 _A better place for version history rather than bloating the .ino file._
+
 --- 
 HexBright Basic Code - High/Med/Low/Dazzle
   
@@ -8,8 +9,9 @@ https://github.com/hexbright/samples
   
 Cherry picked dazzle improvements from https://github.com/digitalmisery/HexBrightFLEX:
 - Changed the way dazzle works and set flicker rate to match the known frequencies for vertigo (about 5 to 20Hz): http://en.wikipedia.org/wiki/Flicker_vertigo
-- Cherry pick SOS from https://github.com/jaebird/samples.git
-- Added SOS to dazzle mode. To get there: press and hold pwr button to get dazzle, then 2 second long press again for SOS
+- Cherry pick SOS from https://github.com/jaebird/samples.git.
+- Added SOS to dazzle mode. To get there press and hold pwr button to get dazzle, then 2 second long press again for SOS.
+
 ---
 UPDATE LOG:
 12-29-12
