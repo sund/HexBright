@@ -256,7 +256,7 @@ void loop()
       break;
     case MODE_MED:
       Serial.println("Mode = medium");
-      hb.set_light(750, 750, 0);
+      hb.set_light(MAX_LOW_LEVEL, MAX_LOW_LEVEL, 0);
       break;
     case MODE_HIGH:
       Serial.println("Mode = high");
