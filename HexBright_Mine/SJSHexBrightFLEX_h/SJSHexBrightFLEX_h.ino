@@ -1,6 +1,6 @@
 /* 
   My version of HexBrightFLEX based on hexbright_bjh
-  v1.3.1 (change the 'Powered Up! text below to match)
+  v1.3.2 (change the 'Powered Up! text below to match)
   __________________________________________________
   1-10-13
   Updating some code from hexbright.h and shrinking the
@@ -32,21 +32,13 @@
 hexbright hb;
 
 // Settings
-#define OVERTEMP                300 //~1.1V = 60C = 140F ~ 320 = 130* fahrenheit/55* celsius (with calibration)
+#define OVERTEMP                300
 
-// Pin assignments
-#define DPIN_RLED_SW            2 //PD2, INT0, MLF PIN 28 - Red LED
-#define DPIN_GLED               5 //PD5, OC0B, MLF PIN 7 - Green LED
-#define DPIN_PGOOD              7 //PD7, MLF PIN 9 - Power Good
-#define DPIN_PWR                8 //PB0, MLF PIN 10 - POWER
-#define DPIN_DRV_MODE           9 //PB1, OC1A, MLF PIN 11 - Drv Mode
-#define DPIN_DRV_EN             10 //PB2, OC1B, MLF PIN 12 - Drv Int?
-#define APIN_TEMP               0 //PC0, ADC0, MLF PIN 19 - Temp Diode
-#define APIN_CHARGE             3 //PC3, ADC3, MLF PIN 22 - Charge State
-
-// Interrupts
-#define INT_SW                  0
-#define INT_ACC                 1
+// Pin assignments not decalered in hexbright.h
+#define DPIN_RLED_SW            2
+#define DPIN_PWR                8
+#define DPIN_DRV_MODE           9
+#define DPIN_DRV_EN             10
 
 // Modes
 #define MODE_OFF                0
@@ -61,7 +53,7 @@ hexbright hb;
 // Variables
 const unsigned int SerialPrintIntrvl = 1000;
 
-// State
+// State; initialize
 byte mode = 0;
 unsigned long btnTime = 0;
 boolean btnDown = false;
@@ -74,46 +66,17 @@ void setup()
   hb.init_hardware();
   // We just powered on!  That means either we got plugged 
   // into USB, or the user is pressing the power button.
-  /*
-  pinMode(DPIN_PWR,      INPUT);
-  digitalWrite(DPIN_PWR, LOW);
 
-  // Initialize GPIO
-  pinMode(DPIN_RLED_SW,  INPUT);
-  pinMode(DPIN_GLED,     OUTPUT);
-  pinMode(DPIN_DRV_MODE, OUTPUT);
-  pinMode(DPIN_DRV_EN,   OUTPUT);
-  pinMode(DPIN_ACC_INT,  INPUT);
-  pinMode(DPIN_PGOOD,    INPUT);
-  digitalWrite(DPIN_DRV_MODE, LOW);
-  digitalWrite(DPIN_DRV_EN,   LOW);
-  digitalWrite(DPIN_ACC_INT,  HIGH);
-  */
   // Initialize serial busses
   Serial.begin(9600);
   Wire.begin();
   
   // Configure accelerometer
-  /*
-  byte config[] = {
-    ACC_REG_INTS,  // First register (see next line)
-    0xE4,  // Interrupts: shakes, taps
-    0x00,  // Mode: not enabled yet
-    0x00,  // Sample rate: 120 Hz active
-    0x0F,  // Tap threshold
-    0x10   // Tap debounce samples
-  };
-  
-  Wire.beginTransmission(ACC_ADDRESS);
-  Wire.write(config, sizeof(config));
-  Wire.endTransmission();
-  */
-  
   btnTime = millis();
-  btnDown = digitalRead(DPIN_RLED_SW);
+  btnDown = hb.button_pressed();
   mode = MODE_OFF;
 
-  Serial.println("Powered up! v1.3.1");
+  Serial.println("Powered up! v1.3.2");
   randomSeed(analogRead(1));
 }
 
@@ -129,7 +92,7 @@ void loop()
   unsigned long time = millis(); // time on in millsecs
   
   // Check the state of the charge controller
-  int chargeState = analogRead(APIN_CHARGE);
+  int chargeState = hb.get_charge_state();
   
   // Print the charge every so often
   if (time-lastChrgTime > SerialPrintIntrvl)
@@ -137,11 +100,6 @@ void loop()
     lastChrgTime = time;
     Serial.print("chargeState: ");
     Serial.println(chargeState);
-    
-    //check the free ram
-    //Serial.print("freeRam: ");
-    //Serial.println(hb.freeRam());
-    
   }
   
   //  printing charge state
@@ -183,9 +141,11 @@ void loop()
   
       if (hb.tapped()) Serial.println("** Tap!");
       if (hb.shaked()) Serial.println("** Shake!");
+      
     }
 
-  // Do whatever this mode does
+  // If we are in the special modes (DAZZLE or SOS)
+  // then flip the switch on and off as needed.
   switch (mode)
   {
   case MODE_DAZZLE:
@@ -206,12 +166,13 @@ void loop()
   
   // Periodically pull down the button's pin, since
   // in certain hardware revisions it can float.
+  // Do we have to do this on the shipping version of hexbright?
   pinMode(DPIN_RLED_SW, OUTPUT);
   pinMode(DPIN_RLED_SW, INPUT);
   
   // Check for mode changes
   byte newMode = mode;
-  byte newBtnDown = digitalRead(DPIN_RLED_SW);
+  byte newBtnDown = hb.button_pressed();
   switch (mode)
   {
   case MODE_OFF:
@@ -261,6 +222,7 @@ void loop()
   //activity power down EXCLUDES SOS MODE!
   if (time-max(lastAccTime,lastModeTime) > 600000UL && newMode != MODE_SOS) { //10 minutes
     newMode = MODE_OFF;
+    Serial.println("** Inactivity shutdown!");
   }
 
   // Do the mode transitions
@@ -281,13 +243,12 @@ void loop()
     {
     case MODE_OFF:
       Serial.println("Mode = off");
-      pinMode(DPIN_PWR, OUTPUT);
-      digitalWrite(DPIN_PWR, LOW);
-      digitalWrite(DPIN_DRV_MODE, LOW);
-      digitalWrite(DPIN_DRV_EN, LOW);
+      hb.shutdown();
       break;
     case MODE_LOW:
       Serial.println("Mode = low");
+      //not too happy with this compared to the original
+      //hb.set_light(MAX_LOW_LEVEL, MAX_LOW_LEVEL, 0);
       pinMode(DPIN_PWR, OUTPUT);
       digitalWrite(DPIN_PWR, HIGH);
       digitalWrite(DPIN_DRV_MODE, LOW);
@@ -295,17 +256,11 @@ void loop()
       break;
     case MODE_MED:
       Serial.println("Mode = medium");
-      pinMode(DPIN_PWR, OUTPUT);
-      digitalWrite(DPIN_PWR, HIGH);
-      digitalWrite(DPIN_DRV_MODE, LOW);
-      analogWrite(DPIN_DRV_EN, 255);
+      hb.set_light(750, 750, 0);
       break;
     case MODE_HIGH:
       Serial.println("Mode = high");
-      pinMode(DPIN_PWR, OUTPUT);
-      digitalWrite(DPIN_PWR, HIGH);
-      digitalWrite(DPIN_DRV_MODE, HIGH);
-      analogWrite(DPIN_DRV_EN, 255);
+      hb.set_light(MAX_LEVEL, MAX_LEVEL, 0);
       break;
     case MODE_DAZZLE:
     case MODE_DAZZLE_PREVIEW:

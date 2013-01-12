@@ -17,5 +17,8 @@ Cherry picked dazzle improvements from https://github.com/digitalmisery/HexBrigh
 
 ---
 UPDATE LOG:
+1-11-13
+- More cleaning of redundant code with hexbright.h and some of the light levels
+
 1-10-13
 - Cleaned it up. mainly temp report and chargestate.
