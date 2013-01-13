@@ -1,8 +1,9 @@
 /* 
  My version of HexBrightFLEX based on hexbright_bjh
- v1.2
+ v1.3
  __________________________________________________
  1-13-13
+ Cleaned up some Serial prints
  
  See sund/HexBright/HexBright_Mine/SJSHexBrightFLEX/
  SJSHexLightFLEX Version History.txt
@@ -31,7 +32,7 @@
 #include <Wire.h>
 
 // Settings
-#define OVERTEMP                300 //~1.1V = 60C = 140F ~ 320 = 130* fahrenheit/55* celsius (with calibration)
+#define OVERTEMP                300 
 
 // Accelerometer defines
 #define ACC_ADDRESS             0x4C
@@ -169,7 +170,7 @@ void loop()
     Serial.println(temperature);
     if (temperature > OVERTEMP && mode != MODE_OFF)
     {
-      Serial.println("Overheating!");
+      Serial.println("** Overheating!");
 
       for (int i = 0; i < 6; i++)
       {
