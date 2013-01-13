@@ -1,30 +1,30 @@
 /* 
-  My version of HexBrightFLEX based on hexbright_bjh
-  v1.3.2 (change the 'Powered Up! text below to match)
-  __________________________________________________
-  1-10-13
-  Updating some code from hexbright.h and shrinking the
-  size of the compiled sketch
-  
-  See sund/HexBright/HexBright_Mine/SJSHexBrightFLEX/
-   SJSHexLightFLEX Version History.txt
-  __________________________________________________
-  TO DO:
-  Short term
-  .Flash red LED when within 10 or so of OVERTEMP and
-   flashes 2x within 5
-  
-  Long Term
-  .Calc temp from wire
-  .change dazzle mode to pressing button and shaking light.
-   and enter SOS after holding for 5 sec
-  .beacon mode and 'stabbing motion' down
-  .momentary press - enter with ?
-  .static mode - press while pointing down and set on surface and stay on for 5 more so minutes
-  __________________________________________________
-  See the sund/HexBright/HexBright_Mine/README.txt for info on sources.
-
-*/
+ My version of HexBrightFLEX based on hexbright_bjh
+ v1.3.2 (change the 'Powered Up! text below to match)
+ __________________________________________________
+ 1-10-13
+ Updating some code from hexbright.h and shrinking the
+ size of the compiled sketch
+ 
+ See sund/HexBright/HexBright_Mine/SJSHexBrightFLEX/
+ SJSHexLightFLEX Version History.txt
+ __________________________________________________
+ TO DO:
+ Short term
+ .Flash red LED when within 10 or so of OVERTEMP and
+ flashes 2x within 5
+ 
+ Long Term
+ .Calc temp from wire
+ .change dazzle mode to pressing button and shaking light.
+ and enter SOS after holding for 5 sec
+ .beacon mode and 'stabbing motion' down
+ .momentary press - enter with ?
+ .static mode - press while pointing down and set on surface and stay on for 5 more so minutes
+ __________________________________________________
+ See the sund/HexBright/HexBright_Mine/README.txt for info on sources.
+ 
+ */
 
 #include <Wire.h>
 #include <hexbright.h>
@@ -52,6 +52,7 @@ hexbright hb;
 
 // Variables
 const unsigned int SerialPrintIntrvl = 1000;
+const unsigned long ActTimeOut = 600;
 
 // State; initialize
 byte mode = 0;
@@ -70,7 +71,7 @@ void setup()
   // Initialize serial busses
   Serial.begin(9600);
   Wire.begin();
-  
+
   // Configure accelerometer
   btnTime = millis();
   btnDown = hb.button_pressed();
@@ -84,16 +85,16 @@ void loop()
 {
   //needed with hexbright.h
   hb.update();
-  
+
   static unsigned long lastDazzleTime, lastTempTime, lastChrgTime, lastModeTime, lastAccTime, lastModeSOSTime;
   static unsigned long ditdah;
   static int ledState = LOW;
-  
+
   unsigned long time = millis(); // time on in millsecs
-  
-  // Check the state of the charge controller
+
+    // Check the state of the charge controller
   int chargeState = hb.get_charge_state();
-  
+
   // Print the charge every so often
   if (time-lastChrgTime > SerialPrintIntrvl)
   {
@@ -101,18 +102,32 @@ void loop()
     Serial.print("chargeState: ");
     Serial.println(chargeState);
   }
-  
+
   //  printing charge state
   hb.print_charge(GLED);
-  
+
   // Check the temperature sensor
   if (time-lastTempTime > SerialPrintIntrvl)
   {
     lastTempTime = time;
     int temperature = hb.get_thermal_sensor();
-    Serial.print("Temp: ");
-    Serial.println(temperature);
-    
+/*
+    Serial.print("time: ");
+    Serial.println(time);
+    Serial.print("max: ");
+    Serial.println(max(lastAccTime,lastModeTime));
+    Serial.print("lastAccTime: ");
+    Serial.println(lastAccTime);
+    Serial.print("lastModeTime: ");
+    Serial.println(lastModeTime);
+    Serial.print("calc: ");
+    Serial.println((time - max(lastAccTime,lastModeTime)));
+    Serial.print("newMode: ");
+    Serial.println(newMode);
+    Serial.print("mode: ");
+    Serial.println(mode);
+*/
+
     if (temperature > OVERTEMP && mode != MODE_OFF)
     {
       Serial.println("Overheating!");
@@ -135,14 +150,23 @@ void loop()
 
   // Check if the accel has anything to say
   // at a resonable interval
-  if (time-lastAccTime > 50)
+  byte tapped = 0, shaked = 0;
+  if (!digitalRead(DPIN_ACC_INT))
+  {
+    Wire.beginTransmission(ACC_ADDRESS);
+    Wire.write(ACC_REG_TILT);
+    Wire.endTransmission(false);       // End, but do not stop!
+    Wire.requestFrom(ACC_ADDRESS, 1);  // This one stops.
+    byte tilt = Wire.read();
+
+    if (time-lastAccTime > 50)
     {
       lastAccTime = time;
-  
+
       if (hb.tapped()) Serial.println("** Tap!");
       if (hb.shaked()) Serial.println("** Shake!");
-      
     }
+  }
 
   // If we are in the special modes (DAZZLE or SOS)
   // then flip the switch on and off as needed.
@@ -163,13 +187,13 @@ void loop()
     digitalWrite(DPIN_DRV_EN, morseCodeSOS(time - lastModeSOSTime));
     break;
   }
-  
+
   // Periodically pull down the button's pin, since
   // in certain hardware revisions it can float.
   // Do we have to do this on the shipping version of hexbright?
   pinMode(DPIN_RLED_SW, OUTPUT);
   pinMode(DPIN_RLED_SW, INPUT);
-  
+
   // Check for mode changes
   byte newMode = mode;
   byte newBtnDown = hb.button_pressed();
@@ -206,7 +230,7 @@ void loop()
     if (btnDown && !newBtnDown && (time-btnTime)>50)
       newMode = MODE_OFF;
     if (btnDown && newBtnDown && (time-btnTime)>2000) //full 2 second press
-       newMode = MODE_SOS_PREVIEW;
+      newMode = MODE_SOS_PREVIEW;
     break;
   case MODE_SOS_PREVIEW:
     // This mode exists just to ignore this button release.
@@ -218,9 +242,9 @@ void loop()
       newMode = MODE_OFF;
     break;
   }
-  
+
   //activity power down EXCLUDES SOS MODE!
-  if (time-max(lastAccTime,lastModeTime) > 600000UL && newMode != MODE_SOS) { //10 minutes
+  if ((time - max(lastAccTime,lastModeTime) > ActTimeOut ) && newMode != MODE_SOS) {
     newMode = MODE_OFF;
     Serial.println("** Inactivity shutdown!");
   }
@@ -229,14 +253,17 @@ void loop()
   if (newMode != mode)
   {
     lastModeTime = millis();
- 
+
     // Enable or Disable accelerometer
-    byte disable[] = {ACC_REG_MODE, 0x00};  // Mode: standby!
-    byte enable[] = {ACC_REG_MODE, 0x01};  // Mode: active!
+    byte disable[] = {
+      ACC_REG_MODE, 0x00    };  // Mode: standby!
+    byte enable[] = {
+      ACC_REG_MODE, 0x01    };  // Mode: active!
     Wire.beginTransmission(ACC_ADDRESS);
     if (newMode == MODE_OFF) {
       Wire.write(disable, sizeof(disable));
-    } else Wire.write(enable, sizeof(enable));
+    } 
+    else Wire.write(enable, sizeof(enable));
     Wire.endTransmission();
 
     switch (newMode)
@@ -298,7 +325,7 @@ bool morseCodeSOS(unsigned long time){
   // Morse Code:  (thanks jaebird!)
   // S = ...  O = ---
   // SOS word = ...---...
-  
+
   // word space = 7 dits duration
   // S = 5 dits duration
   // char space = 3 dits duration
@@ -306,7 +333,7 @@ bool morseCodeSOS(unsigned long time){
   // char space = 3 dits duration
   // S = 5 dits duration
   // total duration = 34
-  
+
   byte step = (time / dit) % 34; //dit number modulo the length of the sequence;
   // Start with word space
   if (step < 7) return false;
@@ -323,9 +350,10 @@ bool morseCodeSOS(unsigned long time){
   // Char space
   if (step < 3) return false;
   step -= 3;
-   // Last S
+  // Last S
   if (step < 5) return (step % 2) == 0; // every second dit is off
   // Should never get here
   Serial.println("Morse SOS overrun error");  
   return false;
 }
+

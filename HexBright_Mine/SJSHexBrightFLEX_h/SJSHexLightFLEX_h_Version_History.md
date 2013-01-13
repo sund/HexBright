@@ -5,6 +5,8 @@ HexBright Basic Code - High/Med/Low/Dazzle
 _with the hexbright.h library_
   
 I am adding more functions found in the hexbright.h to replace the code as possible while keeping the same features and functions.
+
+Noticed that the only thing broke is the inactivity timeout.
   
 Based on:
 Factory firmware for HexBright FLEX v2.4 Dec 6, 2012
