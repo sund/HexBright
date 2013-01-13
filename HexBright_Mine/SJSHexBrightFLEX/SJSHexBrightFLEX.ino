@@ -25,9 +25,6 @@
  
  */
 
-// Configs
-#define CFG_ChgFade true
-
 #include <math.h>
 #include <Wire.h>
 
@@ -142,15 +139,7 @@ void loop()
 
   if (chargeState < 128)  // Low - charging
   {
-    //Config from the top for fade or blinky
-    if (!CFG_ChgFade)
-      digitalWrite(DPIN_GLED, (time&0x0200)?LOW:HIGH);
-    else{
-      if(time%4000 < 2000)
-        analogWrite(DPIN_GLED,map(time%2000,0,2000,0,255));
-      else
-        analogWrite(DPIN_GLED,map(time%2000,0,2000,255,0));
-    }
+    digitalWrite(DPIN_GLED, (time&0x0200)?LOW:HIGH);
   }
   else if (chargeState > 768) // High - charged
   {
@@ -283,7 +272,7 @@ void loop()
   }
 
   //activity power down EXCLUDES SOS MODE!
-  if ((time - max(lastAccTime,lastModeTime) > 600000UL ) && newMode != MODE_SOS) { // 10 minutes
+  if ((time - max(lastAccTime,lastModeTime) > 600000UL ) && newMode != MODE_SOS && mode != MODE_OFF ) { // 10 minutes
     newMode = MODE_OFF;
     Serial.println("** Inactivity shutdown!");
   }
@@ -295,9 +284,9 @@ void loop()
 
     // Enable or Disable accelerometer
     byte disable[] = {
-      ACC_REG_MODE, 0x00    };  // Mode: standby!
+      ACC_REG_MODE, 0x00        };  // Mode: standby!
     byte enable[] = {
-      ACC_REG_MODE, 0x01    };  // Mode: active!
+      ACC_REG_MODE, 0x01        };  // Mode: active!
     Wire.beginTransmission(ACC_ADDRESS);
     if (newMode == MODE_OFF) {
       Wire.write(disable, sizeof(disable));
@@ -402,4 +391,5 @@ bool morseCodeSOS(unsigned long time){
   Serial.println("Morse SOS overrun error");  
   return false;
 }
+
 

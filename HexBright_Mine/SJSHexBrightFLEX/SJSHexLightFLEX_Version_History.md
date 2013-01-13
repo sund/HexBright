@@ -14,6 +14,9 @@ Cherry picked dazzle improvements from https://github.com/digitalmisery/HexBrigh
 
 ---
 UPDATE LOG:
+1-13-13
+- removed the chargeFade and made sure the inactivity timeout doesn't kick in if off. Think either or both of these resulted in some instances where the light won't come if charging for a while.
+
 12-29-12
 - some code from sharph (https://github.com/sharph/sharp-hexbright) dealing with fading the green led during charge
 Added more code to choose blink or fade
