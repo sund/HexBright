@@ -1,9 +1,7 @@
 /* 
  My version of HexBrightFLEX based on hexbright_bjh
- v1.3 Playground
+ v1.3.2 (change the 'Powered Up! text below to match)
  __________________________________________________
- 1-13-13
- Cleaned up some Serial prints
  
  See sund/HexBright/HexBright_Mine/SJSHexBrightFLEX/
  SJSHexLightFLEX Version History.txt
@@ -114,11 +112,7 @@ void setup()
   btnDown = digitalRead(DPIN_RLED_SW);
   mode = MODE_OFF;
 
-<<<<<<< HEAD:SJSHexBrightFLEX/SJSHexBrightFLEX.ino
-  Serial.println("Powered up! v1.3");
-=======
-  Serial.println("Powered up! Playground");
->>>>>>> Some comments:HexBright_Mine/SJSHexBrightFLEX/SJSHexBrightFLEX.ino
+  Serial.println("Powered up! v1.3.2");
   randomSeed(analogRead(1));
 }
 
@@ -288,9 +282,9 @@ void loop()
 
     // Enable or Disable accelerometer
     byte disable[] = {
-      ACC_REG_MODE, 0x00            };  // Mode: standby!
+      ACC_REG_MODE, 0x00                };  // Mode: standby!
     byte enable[] = {
-      ACC_REG_MODE, 0x01            };  // Mode: active!
+      ACC_REG_MODE, 0x01                };  // Mode: active!
     Wire.beginTransmission(ACC_ADDRESS);
     if (newMode == MODE_OFF) {
       Wire.write(disable, sizeof(disable));
@@ -395,3 +389,4 @@ bool morseCodeSOS(unsigned long time){
   Serial.println("** Morse SOS overrun error");  
   return false;
 }
+

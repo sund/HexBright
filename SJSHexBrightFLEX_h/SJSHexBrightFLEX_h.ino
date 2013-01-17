@@ -2,9 +2,6 @@
  My version of HexBrightFLEX based on hexbright_bjh
  v1.3.2 (change the 'Powered Up! text below to match)
  __________________________________________________
- 1-10-13
- Updating some code from hexbright.h and shrinking the
- size of the compiled sketch
  
  See sund/HexBright/HexBright_Mine/SJSHexBrightFLEX/
  SJSHexLightFLEX Version History.txt
@@ -111,37 +108,16 @@ void loop()
   {
     lastTempTime = time;
     int temperature = hb.get_thermal_sensor();
-/*
-    Serial.print("time: ");
-    Serial.println(time);
-    Serial.print("max: ");
-    Serial.println(max(lastAccTime,lastModeTime));
-    Serial.print("lastAccTime: ");
-    Serial.println(lastAccTime);
-    Serial.print("lastModeTime: ");
-    Serial.println(lastModeTime);
-    Serial.print("calc: ");
-    Serial.println((time - max(lastAccTime,lastModeTime)));
-    Serial.print("newMode: ");
-    Serial.println(newMode);
-    Serial.print("mode: ");
-    Serial.println(mode);
-*/
 
     if (temperature > OVERTEMP && mode != MODE_OFF)
     {
-      Serial.println("Overheating!");
+      Serial.println("** Overheating!");
 
       for (int i = 0; i < 6; i++)
       {
-        //digitalWrite(DPIN_DRV_MODE, LOW);
         hb.set_light(MAX_LOW_LEVEL, MAX_LOW_LEVEL, 100);
-        //delay(100);
-        //digitalWrite(DPIN_DRV_MODE, HIGH);
         hb.set_light(MAX_LEVEL, MAX_LEVEL, 100);
-        //delay(100);
       }
-      //digitalWrite(DPIN_DRV_MODE, LOW);
       hb.set_light(MAX_LOW_LEVEL, MAX_LOW_LEVEL, 0);
 
       mode = MODE_LOW;
@@ -256,9 +232,9 @@ void loop()
 
     // Enable or Disable accelerometer
     byte disable[] = {
-      ACC_REG_MODE, 0x00    };  // Mode: standby!
+      ACC_REG_MODE, 0x00        };  // Mode: standby!
     byte enable[] = {
-      ACC_REG_MODE, 0x01    };  // Mode: active!
+      ACC_REG_MODE, 0x01        };  // Mode: active!
     Wire.beginTransmission(ACC_ADDRESS);
     if (newMode == MODE_OFF) {
       Wire.write(disable, sizeof(disable));
@@ -356,4 +332,5 @@ bool morseCodeSOS(unsigned long time){
   Serial.println("Morse SOS overrun error");  
   return false;
 }
+
 

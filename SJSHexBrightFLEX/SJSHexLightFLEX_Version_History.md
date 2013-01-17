@@ -14,6 +14,9 @@ Cherry picked dazzle improvements from https://github.com/digitalmisery/HexBrigh
 
 ---
 UPDATE LOG:
+1-17-13
+- Made each version be more uniform in comments.
+
 1-13-13
 - removed the chargeFade and made sure the inactivity timeout doesn't kick in if off. Think either or both of these resulted in some instances where the light won't come if charging for a while.
 

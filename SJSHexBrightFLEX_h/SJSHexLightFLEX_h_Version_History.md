@@ -19,6 +19,9 @@ Cherry picked dazzle improvements from https://github.com/digitalmisery/HexBrigh
 
 ---
 UPDATE LOG:
+1-17-13
+- Made each version be more uniform in comments.
+
 1-11-13
 - More cleaning of redundant code with hexbright.h and some of the light levels
 
