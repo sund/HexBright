@@ -34,7 +34,7 @@ hexbright hb;
 // Settings
 #define OVERTEMP                300
 
-// Pin assignments not decalered in hexbright.h
+// Pin assignments not declared in hexbright.h
 #define DPIN_RLED_SW            2
 #define DPIN_PWR                8
 #define DPIN_DRV_MODE           9
