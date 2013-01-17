@@ -1,6 +1,6 @@
 /* 
  My version of HexBrightFLEX based on hexbright_bjh
- v1.3
+ v1.3 Playground
  __________________________________________________
  1-13-13
  Cleaned up some Serial prints
@@ -114,7 +114,11 @@ void setup()
   btnDown = digitalRead(DPIN_RLED_SW);
   mode = MODE_OFF;
 
+<<<<<<< HEAD:SJSHexBrightFLEX/SJSHexBrightFLEX.ino
   Serial.println("Powered up! v1.3");
+=======
+  Serial.println("Powered up! Playground");
+>>>>>>> Some comments:HexBright_Mine/SJSHexBrightFLEX/SJSHexBrightFLEX.ino
   randomSeed(analogRead(1));
 }
 
