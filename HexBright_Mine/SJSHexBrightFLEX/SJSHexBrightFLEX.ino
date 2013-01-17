@@ -114,7 +114,7 @@ void setup()
   btnDown = digitalRead(DPIN_RLED_SW);
   mode = MODE_OFF;
 
-  Serial.println("Powered up!");
+  Serial.println("Powered up! v1.3");
   randomSeed(analogRead(1));
 }
 
