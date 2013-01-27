@@ -16,6 +16,7 @@ Cherry picked dazzle improvements from https://github.com/digitalmisery/HexBrigh
 
 ---
 UPDATE LOG:
+
 1-26-13
 - Commented out temp report and Accel actions. At about line 340 is the code to change to print out your secret message. 
 
