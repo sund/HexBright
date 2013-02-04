@@ -5,7 +5,7 @@
  __________________________________________________
  
  See sund/HexBright/HexBright_Mine/SJSHexBrightFLEX/
- SJSHexLightFLEX Version History.txt
+ README.MD
  __________________________________________________
  TO DO:
  Short term
@@ -20,7 +20,7 @@
  .momentary press - enter with ?
  .static mode - press while pointing down and set on surface and stay on for 5 more so minutes
  __________________________________________________
- See the sund/HexBright/README.txt for info on sources.
+ See the sund/HexBright/README.md for info on sources.
  
  */
 

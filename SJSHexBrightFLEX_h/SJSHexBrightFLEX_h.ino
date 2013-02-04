@@ -4,7 +4,7 @@
  __________________________________________________
  
  See sund/HexBright/HexBright_Mine/SJSHexBrightFLEX/
- SJSHexLightFLEX Version History.txt
+ README.md
  __________________________________________________
  TO DO:
  Short term
@@ -19,7 +19,7 @@
  .momentary press - enter with ?
  .static mode - press while pointing down and set on surface and stay on for 5 more so minutes
  __________________________________________________
- See the sund/HexBright/HexBright_Mine/README.txt for info on sources.
+ See the sund/HexBright/README.md for info on sources.
  
  */
 
@@ -250,12 +250,7 @@ void loop()
       break;
     case MODE_LOW:
       Serial.println("Mode = low");
-      //not too happy with this compared to the original
-      //hb.set_light(MAX_LOW_LEVEL, MAX_LOW_LEVEL, 0);
-      pinMode(DPIN_PWR, OUTPUT);
-      digitalWrite(DPIN_PWR, HIGH);
-      digitalWrite(DPIN_DRV_MODE, LOW);
-      analogWrite(DPIN_DRV_EN, 32);
+      hb.set_light(MAX_LOW_LEVEL, 250, 0);
       break;
     case MODE_MED:
       Serial.println("Mode = medium");
