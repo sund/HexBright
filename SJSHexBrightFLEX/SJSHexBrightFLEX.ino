@@ -131,8 +131,13 @@ void loop()
   if (time-lastChrgTime > SerialPrintIntrvl)
   {
     lastChrgTime = time;
-    Serial.print("chargeState: ");
-    Serial.println(chargeState);
+    if (chargeState = 3)
+      Serial.println("Charged!");
+    else
+      if (chargeState = 1)
+        Serial.println("Charging!");
+      else
+        Serial.println("On Battery!");
   }
 
   if (chargeState < 128)  // Low - charging
@@ -282,9 +287,9 @@ void loop()
 
     // Enable or Disable accelerometer
     byte disable[] = {
-      ACC_REG_MODE, 0x00                };  // Mode: standby!
+      ACC_REG_MODE, 0x00                    };  // Mode: standby!
     byte enable[] = {
-      ACC_REG_MODE, 0x01                };  // Mode: active!
+      ACC_REG_MODE, 0x01                    };  // Mode: active!
     Wire.beginTransmission(ACC_ADDRESS);
     if (newMode == MODE_OFF) {
       Wire.write(disable, sizeof(disable));
@@ -389,4 +394,5 @@ bool morseCodeSOS(unsigned long time){
   Serial.println("** Morse SOS overrun error");  
   return false;
 }
+
 
