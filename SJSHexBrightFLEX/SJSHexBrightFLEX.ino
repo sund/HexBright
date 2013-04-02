@@ -135,9 +135,10 @@ void loop()
       Serial.println("Charged!");
     else
       if (chargeState = 1)
-        Serial.println("Charging!");
+	Serial.println("Charging!");
       else
-        Serial.println("On Battery!");
+	Serial.println("On Battery!");
+
   }
 
   if (chargeState < 128)  // Low - charging
