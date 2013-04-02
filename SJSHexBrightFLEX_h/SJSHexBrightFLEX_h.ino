@@ -96,8 +96,13 @@ void loop()
   if (time-lastChrgTime > SerialPrintIntrvl)
   {
     lastChrgTime = time;
-    Serial.print("chargeState: ");
-    Serial.println(chargeState);
+    if (chargeState = 3)
+      Serial.println("Charged!");
+    else
+      if (chargeState = 1)
+        Serial.println("Charging!");
+      else
+        Serial.println("On Battery!");
   }
 
   //  printing charge state
