@@ -13,7 +13,3 @@ _Contains the base version from the samples repo with improvements from the hexb
 **SJSHexBrightFLEX_lightdrop**
 
 _Contains the base version from the samples repo with improvements from the hexbright.h library and a secret feature. See the README.md file for info._
-
-**tactical_plus**
-
-_Base verson plus a few more items (eventually) from me._
