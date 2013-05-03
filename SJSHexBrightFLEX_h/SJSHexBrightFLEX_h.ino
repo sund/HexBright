@@ -1,23 +1,12 @@
 /* 
  My version of HexBrightFLEX based on hexbright_bjh
- v1.3.2 (change the 'Powered Up! text below to match)
+ v1.3.3 (change the 'Powered Up! text below to match)
  __________________________________________________
  
  See sund/HexBright/HexBright_Mine/SJSHexBrightFLEX/
  README.md
  __________________________________________________
- TO DO:
- Short term
- .Flash red LED when within 10 or so of OVERTEMP and
- flashes 2x within 5
  
- Long Term
- .Calc temp from wire
- .change dazzle mode to pressing button and shaking light.
- and enter SOS after holding for 5 sec
- .beacon mode and 'stabbing motion' down
- .momentary press - enter with ?
- .static mode - press while pointing down and set on surface and stay on for 5 more so minutes
  __________________________________________________
  See the sund/HexBright/README.md for info on sources.
  
@@ -74,7 +63,7 @@ void setup()
   btnDown = hb.button_pressed();
   mode = MODE_OFF;
 
-  Serial.println("Powered up! v1.3.2");
+  Serial.println("Powered up! v1.3.3");
   randomSeed(analogRead(1));
 }
 
@@ -100,9 +89,10 @@ void loop()
       Serial.println("Charged!");
     else
       if (chargeState = 1)
-        Serial.println("Charging!");
+	Serial.println("Charging!");
       else
-        Serial.println("On Battery!");
+	Serial.println("On Battery!");
+
   }
 
   //  printing charge state
@@ -113,7 +103,8 @@ void loop()
   {
     lastTempTime = time;
     int temperature = hb.get_thermal_sensor();
-
+    Serial.print("Temp: ");
+    Serial.println(temperature);
     if (temperature > OVERTEMP && mode != MODE_OFF)
     {
       Serial.println("** Overheating!");
@@ -237,9 +228,9 @@ void loop()
 
     // Enable or Disable accelerometer
     byte disable[] = {
-      ACC_REG_MODE, 0x00        };  // Mode: standby!
+      ACC_REG_MODE, 0x00            };  // Mode: standby!
     byte enable[] = {
-      ACC_REG_MODE, 0x01        };  // Mode: active!
+      ACC_REG_MODE, 0x01            };  // Mode: active!
     Wire.beginTransmission(ACC_ADDRESS);
     if (newMode == MODE_OFF) {
       Wire.write(disable, sizeof(disable));
