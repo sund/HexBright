@@ -354,7 +354,7 @@ void loop()
         if (!strcmp(shibboleet,"Revere")) // here's the password
         {
           Serial.println("The British are coming!!");
-          Serial.println("http://sund.org/y/lightdrop");
+          Serial.println("http://sund.im/lightdrop");
         }
       }
       //
