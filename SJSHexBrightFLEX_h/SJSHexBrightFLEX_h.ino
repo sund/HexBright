@@ -92,7 +92,6 @@ void loop()
 	Serial.println("Charging!");
       else
 	Serial.println("On Battery!");
-
   }
 
   //  printing charge state
