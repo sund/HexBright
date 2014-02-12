@@ -1,6 +1,6 @@
 /* 
  My version of HexBrightFLEX based on hexbright_bjh
- v1.3.3 (change the 'Powered Up! text below to match)
+ v1.4.0 (change the 'Powered Up! text below to match)
  __________________________________________________
  
  See sund/HexBright/HexBright_Mine/SJSHexBrightFLEX/
@@ -12,7 +12,7 @@
  
  */
 #include <print_power.h>
-#include <Wire.h>
+
 #include <hexbright.h>
 //needed with hexbright.h
 hexbright hb;
@@ -37,8 +37,6 @@ hexbright hb;
 #define MODE_SOS_PREVIEW        7
 
 // Variables
-const unsigned int SerialPrintIntrvl = 1000;
-const unsigned long ActTimeOut = 600;
 
 // State; initialize
 byte mode = 0;
@@ -56,14 +54,13 @@ void setup()
 
   // Initialize serial busses
   Serial.begin(9600);
-  Wire.begin();
 
   // Configure accelerometer
   btnTime = millis();
   btnDown = hb.button_pressed();
   mode = MODE_OFF;
 
-  Serial.println("Powered up! v1.3.3");
+  Serial.println("Powered up! v1.4.0");
   randomSeed(analogRead(1));
 }
 
@@ -81,63 +78,9 @@ void loop()
     // Check the state of the charge controller
   int chargeState = hb.get_charge_state();
 
-  // Print the charge every so often
-  if (time-lastChrgTime > SerialPrintIntrvl)
-  {
-    lastChrgTime = time;
-    if (chargeState = 3)
-      Serial.println("Charged!");
-    else
-      if (chargeState = 1)
-	Serial.println("Charging!");
-      else
-	Serial.println("On Battery!");
-  }
-
   //  printing charge state
-  print_power();
 
   // Check the temperature sensor
-  if (time-lastTempTime > SerialPrintIntrvl)
-  {
-    lastTempTime = time;
-    int temperature = hb.get_thermal_sensor();
-    Serial.print("Temp: ");
-    Serial.println(temperature);
-    if (temperature > OVERTEMP && mode != MODE_OFF)
-    {
-      Serial.println("** Overheating!");
-
-      for (int i = 0; i < 6; i++)
-      {
-        hb.set_light(MAX_LOW_LEVEL, MAX_LOW_LEVEL, 100);
-        hb.set_light(MAX_LEVEL, MAX_LEVEL, 100);
-      }
-      hb.set_light(MAX_LOW_LEVEL, MAX_LOW_LEVEL, 0);
-
-      mode = MODE_LOW;
-    }
-  }
-
-  // Check if the accel has anything to say
-  // at a resonable interval
-  byte tapped = 0, shaked = 0;
-  if (!digitalRead(DPIN_ACC_INT))
-  {
-    Wire.beginTransmission(ACC_ADDRESS);
-    Wire.write(ACC_REG_TILT);
-    Wire.endTransmission(false);       // End, but do not stop!
-    Wire.requestFrom(ACC_ADDRESS, 1);  // This one stops.
-    byte tilt = Wire.read();
-
-    if (time-lastAccTime > 50)
-    {
-      lastAccTime = time;
-
-      if (hb.tapped()) Serial.println("** Tap!");
-      if (hb.shaked()) Serial.println("** Shake!");
-    }
-  }
 
   // If we are in the special modes (DAZZLE or SOS)
   // then flip the switch on and off as needed.
@@ -215,33 +158,18 @@ void loop()
   }
 
   //activity power down EXCLUDES SOS MODE!
-  if ((time - max(lastAccTime,lastModeTime) > ActTimeOut ) && newMode != MODE_SOS) {
-    newMode = MODE_OFF;
-    Serial.println("** Inactivity shutdown!");
-  }
 
   // Do the mode transitions
   if (newMode != mode)
   {
     lastModeTime = millis();
 
-    // Enable or Disable accelerometer
-    byte disable[] = {
-      ACC_REG_MODE, 0x00            };  // Mode: standby!
-    byte enable[] = {
-      ACC_REG_MODE, 0x01            };  // Mode: active!
-    Wire.beginTransmission(ACC_ADDRESS);
-    if (newMode == MODE_OFF) {
-      Wire.write(disable, sizeof(disable));
-    } 
-    else Wire.write(enable, sizeof(enable));
-    Wire.endTransmission();
-
+    
     switch (newMode)
     {
     case MODE_OFF:
       Serial.println("Mode = off");
-      hb.shutdown();
+      hb.set_light(0,0,0);
       break;
     case MODE_LOW:
       Serial.println("Mode = low");
