@@ -11,7 +11,7 @@
  See the sund/HexBright/README.md for info on sources.
  
  */
-
+#include <print_power.h>
 #include <Wire.h>
 #include <hexbright.h>
 //needed with hexbright.h
@@ -95,7 +95,7 @@ void loop()
   }
 
   //  printing charge state
-  hb.print_charge(GLED);
+  print_power();
 
   // Check the temperature sensor
   if (time-lastTempTime > SerialPrintIntrvl)
