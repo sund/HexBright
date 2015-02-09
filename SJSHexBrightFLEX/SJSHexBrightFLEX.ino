@@ -37,33 +37,33 @@ void loop()
 {
   hb.update();
   static int brightness_level = 4;
-  
+
   // get current state
   int state = hb.get_light_level();
-  
+
   // list of power levels {1st, 2nd, 3rd, 4th}
-  int levels[] = {250,500,750,1000};
-  
+  int levels[] = {250, 500, 750, 1000};
+
   // Pressing buttons
-  if(hb.button_just_released()) {
-  // if we are off and the button is pressed for < BUTTONMINPRESS ... power on to 1st level
-    if(state=0 && hb.button_pressed_time()<BUTTONMINPRESS) {
-      brightness_level = (brightness_level+1)%5;
+  if (hb.button_just_released()) {
+    // if we are off and the button is pressed for < BUTTONMINPRESS ... power on to 1st level
+    if (state = 0 && hb.button_pressed_time() < BUTTONMINPRESS) {
+      brightness_level = (brightness_level + 1) % 5;
       hb.set_light(CURRENT_LEVEL, levels[brightness_level], 125);
-    
-   // else if being pressed for > DAZZLETIME... go to dazzle
-     
-    
-   // if in dazzle and button is pressed < BUTTONMINPRESS... turn off
-   
-     // else if in dazzle and button held for > BUTTONMAXPRESS then go to 1st level
-   
-   // if we are on any powerlevel and a button is pressed for > BUTTONMINPRESS and < BUTTONMAXPRESS... turn off
-   
-     // else go to next level
-     
-   // if we are in any power level and button pressed > BUTTONMAXPRESS... go to dazzle
-  
+
+      // else if being pressed for > DAZZLETIME... go to dazzle
+
+
+      // if in dazzle and button is pressed < BUTTONMINPRESS... turn off
+
+      // else if in dazzle and button held for > BUTTONMAXPRESS then go to 1st level
+
+      // if we are on any powerlevel and a button is pressed for > BUTTONMINPRESS and < BUTTONMAXPRESS... turn off
+
+      // else go to next level
+
+      // if we are in any power level and button pressed > BUTTONMAXPRESS... go to dazzle
+
     }
   }
   // Print power status on green LED
